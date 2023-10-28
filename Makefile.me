@@ -1,0 +1,89 @@
+# ------------------------------------------------------------
+# OMNET++ porject: EH-WSN
+# July 2023
+# ------------------------------------------------------------
+
+#target=   ehWSN-v0
+target= 2023-Aug-25-ehWSN-v0
+
+srcFiles=   Makefile.me *.txt *.cc *.c *.h *.ned *.msg *.ini
+
+scpDir=	    elmallah@innisfree.cs.ualberta.ca:usr/00-sim/omnet++-examples
+
+LIBPATH=/home/ehab/omnetpp-6/inet4.4/src/libINET.so
+# ------------------------------------------------------------
+run:
+	ehWSN-v0 -s -u Cmdenv -c moreNodes
+
+config:
+	ehWSN-v0 -u Cmdenv -h configdetails
+check:
+	opp_nedtool v -v *.ned
+	@echo '----\n'
+	opp_msgtool v -v *.msg
+
+gcc:
+	opp_msgc ehWSN.msg
+#	gcc -c -I ~/omnetpp-6/include ehWSN.cc	
+	gcc -c -I ~/omnetpp-6/include Node.cc
+#	gcc -c -I ~/omnetpp-6/include WiChan.cc
+#	gcc -c -I ~/omnetpp-6/include Util.cc	
+
+# ------------------------------
+scaFile= results/'SimpleRREQ-\#0.sca'
+vecFile= results/'SimpleRREQ-\#0.vec'
+
+sca:
+#	opp_scavetool results/*.sca
+	opp_scavetool -l -Th $(scaFile)
+#	opp_scavetool -l -f 'module=~TicToc18.tic[0]' $(scaFile)
+
+
+vec:
+	#opp_scavetool -l -f 'module=~**.tic[0]' $(vecFile)
+	opp_scavetool -l -f 'type=~vector' $(vecFile)
+	
+	#opp_scavetool -l -f 'module=~**.tic[0] AND type=~vector' $(vecFile)
+# ------------------------------
+zip:
+	touch $(target).zip
+	mv $(target).zip x$(target).zip
+	- zip $(target).zip $(srcFiles)
+tar:
+	touch $(target).tar.gz
+	mv $(target).tar.gz  x$(target).tar.gz
+	tar -cvf $(target).tar $(allFiles)
+	gzip $(target).tar
+scp:
+	scp $(target).zip $(scpDir)
+clean:
+	rm *~ out.* *.o
+# ------------------------------
+#file=Makefile.me
+#file=omnetpp.ini
+#file= ehWSN.h
+#file= ehWSN.ned
+#file= G_p5.ned
+#file= G_3x5.ned
+#file= ehWSN.msg
+#file= ehWSN.cc
+#file= Util.cc
+#file= Node.cc
+#file= WiChan.cc
+#file= out-WSN.txt
+#file= out-WSN-short.txt
+
+print:
+	@gawk '$$1  ~ /^\/\/##newpage/ {print "\f"}; \
+		$$1 !~ /^\/\/##newpage/ {print $$0}' $(file) |\
+	a2ps -M Letter --center-title='$(file)' -Ecxx -o $(file).ps
+	ps2pdf $(file).ps; mv $(file).pdf 00-pdf
+	mv $(file).ps 00-ps
+
+# ------------------------------
+psFiles= omnetpp.ini.ps ehWSN.ned.ps ehWSN.msg.ps ehWSN.h.ps ehWSN.cc.ps WiChan.cc.ps Node.cc.ps
+
+merge:
+	(cd 00-ps; rm -f all.ps all.pdf)
+	(cd 00-ps; psmerge -oall.ps omnetpp.ini.ps ehWSN.ned.ps G_p5.ned.ps G_3x5.ned.ps ehWSN.msg.ps ehWSN.h.ps ehWSN.cc.ps Util.cc.ps WiChan.cc.ps Node.cc.ps)
+# ------------------------------------------------------------

@@ -1,0 +1,44 @@
+	Omnetpp-6 Simulation Libarary
+	=============================
+Modules:
+=======
+  getFullName()
+  getFullPath().c_str()
+
+Gates:
+======
+  getBaseId ("ioNode$i")
+  gat("ioNode$o", i)->getId()
+  msg->getArrivelaGateId()
+  msg->arrivedOn ("ioNode$i", i)
+  
+Messages:
+========
+  send (tmp, "ioNode$o", outGateIndex)
+
+  sendDelayed (msg, delay, gateName, index)
+  	      (msg, delay, gateId)
+
+  Sec. 4.7.3 (page 87): broadcasting to multiple output gates:
+  for (int i= 0; i < n; i++) {
+      send ( i==n-1? msg : msg->dup(),  outGateBaseId+i)
+  }      
+  
+  msg->gettSendingTime()
+  msg->getArrivalTime()
+
+  check_and_cast <Msg_... *> (cMessage *)
+
+  cancelandDelete(msg): equivalent to
+  			if (msg != nullptr) delete cancelEvent(msg)
+
+Simualtion time:
+================
+  - Class SimTime
+  - typedef SimTime  simtime_t
+  - constructors:
+        SimTime(10, SIMTIME_MS) (can also use SIMTIME_S, SIMTIME_US, etc.)  
+  - methods:
+	      simTime(), simTime().dbl(), simTime().str.c_str(): 
+	      		 		   returns current simulation time
+	      simTime().floor(.,.), simTime().ceil(), ...
